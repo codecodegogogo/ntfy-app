@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_messages">ntfy messages</string>
+    <string name="channel_service">Background connection</string>
+
+    <string name="all_subscriptions">All subscriptions</string>
+    <string name="unread_count">%1$d unread</string>
+    <string name="all_read">Read</string>
+    <string name="mark_all_read">Mark all read</string>
+    <string name="clear_messages">Clear messages</string>
+    <string name="open_drawer">Open subscription manager</string>
+    <string name="more">More</string>
+    <string name="unsubscribe">Unsubscribe</string>
+
+    <string name="no_more_messages">No more messages</string>
+    <string name="mark_read">Mark read</string>
+    <string name="delete_message">Delete message</string>
+    <string name="deleted_one">Deleted 1 message</string>
+    <string name="undo">Undo</string>
+    <string name="empty_message">(empty message)</string>
+    <string name="download_attachment">Download attachment</string>
+
+    <string name="no_messages">No messages</string>
+    <string name="no_subscription">No subscriptions yet</string>
+    <string name="messages_auto_appear">New messages will appear here automatically</string>
+    <string name="swipe_to_manage">Swipe right to open the manager and add your first topic</string>
+    <string name="open_manage">Open subscription manager</string>
+
+    <string name="clear_title">Clear messages?</string>
+    <string name="clear_text">%1$d local messages will be deleted. This cannot be undone.</string>
+    <string name="cleared">Messages cleared</string>
+    <string name="unsubscribe_title">Unsubscribe</string>
+    <string name="unsubscribe_text">Stop receiving messages from #%1$s and delete locally saved messages.</string>
+    <string name="unsubscribed">Unsubscribed #%1$s</string>
+    <string name="keep">Keep</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear_confirm">Clear</string>
+    <string name="all_marked_read">All marked as read</string>
+
+    <string name="manage">Manage</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="open_settings">Open settings</string>
+    <string name="all_topics_count">All %1$d topics · aggregated</string>
+    <string name="no_messages_yet">No messages yet</string>
+    <string name="footer_hint">Messages stay on this device · long-press a topic to unsubscribe</string>
+    <string name="disconnected_label">Disconnected</string>
+    <string name="disconnected_suffix"> (disconnected)</string>
+    <string name="server_menu_hint_connected">%1$s is online. Disconnecting stops all messages from this server.</string>
+    <string name="server_menu_hint_disconnected">%1$s is disconnected. Reconnect to resume receiving messages.</string>
+    <string name="delete_all_subscriptions">Delete all subscriptions</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="delete_same_name">Delete same-name</string>
+    <string name="server_removed">Deleted all subscriptions of %1$s</string>
+    <string name="server_disconnected">Disconnected %1$s, no longer receiving messages</string>
+    <string name="server_reconnecting">Reconnecting to %1$s</string>
+    <string name="connection_failed">Connection failed, retrying</string>
+    <string name="listening_stopped">Listening stopped</string>
+    <string name="restore">Resume</string>
+    <string name="retry">Retry</string>
+
+    <string name="settings">Settings</string>
+    <string name="close_settings">Close settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="follow_system">Follow system</string>
+    <string name="light_mode">Light</string>
+    <string name="dark_mode">Dark</string>
+    <string name="language">Language</string>
+    <string name="font_size">Font size</string>
+    <string name="font_small">Small</string>
+    <string name="font_medium">Medium</string>
+    <string name="font_large">Large</string>
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="backup_desc">Backups include subscriptions, messages and dismissed records. Optional password encryption (AES-GCM) and WebDAV upload are supported.</string>
+    <string name="open_backup">Backup / restore…</string>
+
+    <string name="backup_title">Backup &amp; restore</string>
+    <string name="backup_step">① Backup</string>
+    <string name="encrypt_backup">Password-encrypted backup</string>
+    <string name="backup_password_hint">Backup password, optional (min 6 chars, empty = no encryption)</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="upload_webdav">Back up to WebDAV</string>
+    <string name="webdav_url_hint">WebDAV URL, e.g. https://dav.example.com/dav</string>
+    <string name="webdav_user_hint">WebDAV username (optional)</string>
+    <string name="webdav_password_hint">WebDAV password (optional)</string>
+    <string name="restore_step">② Restore (overwrites local data)</string>
+    <string name="restore_password_hint">Backup password (empty for plain backups)</string>
+    <string name="restore_from_webdav">Restore from WebDAV</string>
+    <string name="close">Close</string>
+    <string name="upload_ok">Uploaded to WebDAV ✓</string>
+    <string name="restore_ok">Restored: %1$d subscriptions · %2$d messages</string>
+    <string name="restore_done">Backup restored</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="backup_encrypted_required">This backup is encrypted. Enter the backup password.</string>
+    <string name="webdav_url_invalid">Invalid WebDAV URL (must start with http(s)://)</string>
+    <string name="webdav_upload_failed">WebDAV upload failed: HTTP %1$d</string>
+    <string name="webdav_download_failed">WebDAV download failed: HTTP %1$d</string>
+    <string name="webdav_empty">WebDAV returned empty content</string>
+    <string name="webdav_addr_invalid">Invalid WebDAV URL (must start with http(s)://)</string>
+    <string name="webdav_upload_failed_generic">Upload failed</string>
+    <string name="webdav_download_failed_generic">Restore failed</string>
+    <string name="haptics">Haptic feedback</string>
+
+    <string name="added_topics">Added %1$d topics · connecting to %2$s</string>
+    <string name="invalid_server">Enter a valid server URL (http or https)</string>
+    <string name="need_topic">Add at least one topic</string>
+    <string name="invalid_topic">Topic “%1$s” is invalid: only letters, digits, - and _</string>
+    <string name="need_both_credentials">Username and password must be filled together</string>
+    <string name="duplicate_subscription">Topics on this server are already subscribed</string>
+    <string name="duplicate_topics">These topics are already subscribed</string>
+    <string name="status_online">Online</string>
+    <string name="status_connecting">Connecting</string>
+    <string name="status_offline">Offline</string>
+</resources>

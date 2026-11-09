@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ntfy</string>
+    <string name="channel_messages">ntfy 消息</string>
+    <string name="channel_service">后台连接</string>
+
+    <!-- 顶栏 -->
+    <string name="all_subscriptions">全部订阅</string>
+    <string name="unread_count">%1$d 条未读</string>
+    <string name="all_read">已读</string>
+    <string name="mark_all_read">全部标为已读</string>
+    <string name="clear_messages">清空消息</string>
+    <string name="open_drawer">打开订阅管理</string>
+    <string name="more">更多</string>
+    <string name="unsubscribe">取消订阅</string>
+
+    <!-- 消息卡片 -->
+    <string name="no_more_messages">没有更多消息</string>
+    <string name="mark_read">标为已读</string>
+    <string name="delete_message">删除消息</string>
+    <string name="deleted_one">已删除 1 条消息</string>
+    <string name="undo">撤销</string>
+    <string name="empty_message">（空消息）</string>
+    <string name="download_attachment">下载附件</string>
+
+    <!-- 空状态 -->
+    <string name="no_messages">暂无消息</string>
+    <string name="no_subscription">还没有订阅</string>
+    <string name="messages_auto_appear">新消息会自动出现在这里</string>
+    <string name="swipe_to_manage">右滑打开订阅管理，添加第一个主题</string>
+    <string name="open_manage">打开订阅管理</string>
+
+    <!-- 对话框 -->
+    <string name="clear_title">清空消息？</string>
+    <string name="clear_text">将删除 %1$d 条本地消息，此操作不可撤销。</string>
+    <string name="cleared">消息已清空</string>
+    <string name="unsubscribe_title">取消订阅</string>
+    <string name="unsubscribe_text">不再接收 #%1$s 的消息，并删除本地已保存的消息。</string>
+    <string name="unsubscribed">已取消订阅 #%1$s</string>
+    <string name="keep">保留</string>
+    <string name="cancel">取消</string>
+    <string name="clear_confirm">清空</string>
+    <string name="all_marked_read">已全部标为已读</string>
+
+    <!-- 管理页 -->
+    <string name="manage">管理</string>
+    <string name="subscribe">订阅</string>
+    <string name="open_settings">打开设置</string>
+    <string name="all_topics_count">全部 %1$d 个主题 · 聚合消息</string>
+    <string name="no_messages_yet">暂无消息</string>
+    <string name="footer_hint">消息仅保存在本机 · 长按主题可取消订阅</string>
+    <string name="disconnected_label">已断开</string>
+    <string name="disconnected_suffix">（已断开）</string>
+    <string name="server_menu_hint_connected">%1$s 正在线上。断开后不再接收该服务器的所有消息。</string>
+    <string name="server_menu_hint_disconnected">%1$s 已断开。重新连接后将恢复接收消息。</string>
+    <string name="delete_all_subscriptions">删除全部订阅</string>
+    <string name="reconnect">重新连接</string>
+    <string name="disconnect">断开连接</string>
+    <string name="delete_same_name">删除同名</string>
+    <string name="server_removed">已删除 %1$s 的全部订阅</string>
+    <string name="server_disconnected">已断开 %1$s，不再接收消息</string>
+    <string name="server_reconnecting">正在重新连接 %1$s</string>
+    <string name="connection_failed">连接失败，正在重试</string>
+    <string name="listening_stopped">监听已停止</string>
+    <string name="restore">恢复</string>
+    <string name="retry">重试</string>
+
+    <!-- 设置页 -->
+    <string name="settings">设置</string>
+    <string name="close_settings">关闭设置</string>
+    <string name="appearance">外观</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="light_mode">日间模式</string>
+    <string name="dark_mode">夜间模式</string>
+    <string name="language">语言</string>
+    <string name="font_size">字体大小</string>
+    <string name="font_small">小号</string>
+    <string name="font_medium">中号</string>
+    <string name="font_large">大号</string>
+    <string name="backup_restore">备份与还原</string>
+    <string name="backup_desc">备份包含订阅、消息与已删除记录；可设置密码加密（AES-GCM 认证加密），支持上传到 WebDAV 服务器。</string>
+    <string name="open_backup">备份 / 还原…</string>
+
+    <!-- 备份弹窗 -->
+    <string name="backup_title">备份与还原</string>
+    <string name="backup_step">① 备份</string>
+    <string name="encrypt_backup">密码加密备份</string>
+    <string name="backup_password_hint">备份密码，可选（至少 6 位，留空不加密）</string>
+    <string name="confirm_password_hint">再次输入密码确认</string>
+    <string name="upload_webdav">备份到 WebDAV</string>
+    <string name="webdav_url_hint">WebDAV 地址，如 https://dav.example.com/dav</string>
+    <string name="webdav_user_hint">WebDAV 用户名（可选）</string>
+    <string name="webdav_password_hint">WebDAV 密码（可选）</string>
+    <string name="restore_step">② 还原（覆盖本地数据）</string>
+    <string name="restore_password_hint">备份密码（未加密备份留空）</string>
+    <string name="restore_from_webdav">从 WebDAV 还原</string>
+    <string name="close">关闭</string>
+    <string name="upload_ok">已上传到 WebDAV ✓</string>
+    <string name="restore_ok">还原成功：%1$d 个订阅 · %2$d 条消息</string>
+    <string name="restore_done">备份还原完成</string>
+    <string name="password_mismatch">两次输入的密码不一致</string>
+    <string name="backup_encrypted_required">此备份已加密，请输入备份密码</string>
+    <string name="webdav_url_invalid">WebDAV 地址无效，需要 http(s):// 开头</string>
+    <string name="webdav_upload_failed">WebDAV 上传失败：HTTP %1$d</string>
+    <string name="webdav_download_failed">WebDAV 下载失败：HTTP %1$d</string>
+    <string name="webdav_empty">WebDAV 返回内容为空</string>
+    <string name="webdav_addr_invalid">WebDAV 地址无效，需要 http(s):// 开头</string>
+    <string name="webdav_upload_failed_generic">上传失败</string>
+    <string name="webdav_download_failed_generic">还原失败</string>
+    <string name="haptics">触感反馈</string>
+
+    <!-- 添加订阅弹窗通用 -->
+    <string name="added_topics">已添加 %1$d 个主题 · 正在连接 %2$s</string>
+    <string name="invalid_server">请输入有效的服务器地址（http 或 https）</string>
+    <string name="need_topic">请至少添加一个主题</string>
+    <string name="invalid_topic">主题 “%1$s” 不合法，仅支持字母、数字、- 和 _</string>
+    <string name="need_both_credentials">用户名和密码需要同时填写</string>
+    <string name="duplicate_subscription">该服务器上的主题已经订阅过了</string>
+    <string name="duplicate_topics">这些主题已经订阅过了</string>
+    <string name="status_online">在线</string>
+    <string name="status_connecting">连接中</string>
+    <string name="status_offline">离线</string>
+</resources>
