@@ -13,6 +13,8 @@
     <string name="unsubscribe">Unsubscribe</string>
 
     <string name="no_more_messages">No more messages</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
     <string name="mark_read">Mark read</string>
     <string name="delete_message">Delete message</string>
     <string name="deleted_one">Deleted 1 message</string>

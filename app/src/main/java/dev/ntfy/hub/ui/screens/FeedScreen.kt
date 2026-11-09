@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.DeleteSweep
@@ -213,36 +214,49 @@ fun FeedScreen(
                         onOpenDrawer = onOpenDrawer,
                     )
                 } else {
+                    // 按日期分组：每天第一张卡片前插入日期横条（今天 / 昨天 / 7月1日 / 2025年1月1日）。
+                    val todayLabel = stringResource(dev.ntfy.hub.R.string.date_today)
+                    val yesterdayLabel = stringResource(dev.ntfy.hub.R.string.date_yesterday)
+                    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+                    val feedItems = remember(messages, todayLabel, yesterdayLabel, locale) {
+                        buildFeedItems(messages, todayLabel, yesterdayLabel, locale)
+                    }
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                     ) {
-                        items(messages, key = { it.key }) { message ->
-                            MessageCard(
-                                message = message,
-                                topicName = aliasMap["${message.serverUrl}|${message.topic}"]
-                                    ?: message.topic,
-                                showTopic = target == null || target.isAggregate,
-                                onMarkRead = { viewModel.markMessageRead(message.key) },
-                                onDelete = {
-                                    val removed = viewModel.deleteMessage(message.key)
-                                    if (removed != null) {
-                                        scope.launch {
-                                            val result = snackbar.showSnackbar(
-                                                message = context.getString(dev.ntfy.hub.R.string.deleted_one),
-                                                actionLabel = context.getString(dev.ntfy.hub.R.string.undo),
-                                                duration = SnackbarDuration.Long,
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                viewModel.restoreMessage(removed)
+                        items(feedItems, key = { it.key }) { item ->
+                            when (item) {
+                                is FeedItem.DateHeader -> DateBar(item.label, Modifier.animateItem())
+                                is FeedItem.MessageItem -> {
+                                    val message = item.message
+                                    MessageCard(
+                                        message = message,
+                                        topicName = aliasMap["${message.serverUrl}|${message.topic}"]
+                                            ?: message.topic,
+                                        showTopic = target == null || target.isAggregate,
+                                        onMarkRead = { viewModel.markMessageRead(message.key) },
+                                        onDelete = {
+                                            val removed = viewModel.deleteMessage(message.key)
+                                            if (removed != null) {
+                                                scope.launch {
+                                                    val result = snackbar.showSnackbar(
+                                                        message = context.getString(dev.ntfy.hub.R.string.deleted_one),
+                                                        actionLabel = context.getString(dev.ntfy.hub.R.string.undo),
+                                                        duration = SnackbarDuration.Long,
+                                                    )
+                                                    if (result == SnackbarResult.ActionPerformed) {
+                                                        viewModel.restoreMessage(removed)
+                                                    }
+                                                }
                                             }
-                                        }
-                                    }
-                                },
-                                modifier = Modifier.animateItem(),
-                            )
+                                        },
+                                        modifier = Modifier.animateItem(),
+                                    )
+                                }
+                            }
                         }
                         item(key = "footer") {
                             Text(
@@ -671,6 +685,96 @@ private fun EmptyFeed(hasSubscriptions: Boolean, onOpenDrawer: () -> Unit) {
             Spacer(Modifier.height(14.dp))
             TextButton(onClick = onOpenDrawer) {
                 Text(stringResource(dev.ntfy.hub.R.string.open_manage), fontFamily = InterFontFamily, fontSize = 13.sp)
+            }
+        }
+    }
+}
+
+// ─────────────────────────── 日期分组横条 ───────────────────────────
+
+/** 消息列表条目：日期横条或普通消息卡片。 */
+private sealed interface FeedItem {
+    val key: String
+
+    data class DateHeader(val label: String, val dayKey: String) : FeedItem {
+        override val key: String get() = "date-$dayKey"
+    }
+
+    data class MessageItem(val message: NtfyMessage) : FeedItem {
+        override val key: String get() = message.key
+    }
+}
+
+/**
+ * 把按时间倒序的消息列表切成「日期横条 + 消息」序列：
+ * 每天第一条消息前插入一条日期横条。今天/昨天用文字，今年的日期省略年份。
+ */
+private fun buildFeedItems(
+    messages: List<NtfyMessage>,
+    todayLabel: String,
+    yesterdayLabel: String,
+    locale: java.util.Locale,
+): List<FeedItem> {
+    return run {
+        val zone = java.time.ZoneId.systemDefault()
+        val today = java.time.LocalDate.now(zone)
+        val formatterThisYear = java.time.format.DateTimeFormatter.ofPattern(
+            if (locale.language == "zh") "M月d日" else "MMM d", locale
+        )
+        val formatterOtherYear = java.time.format.DateTimeFormatter.ofPattern(
+            if (locale.language == "zh") "yyyy年M月d日" else "MMM d, yyyy", locale
+        )
+        val items = ArrayList<FeedItem>(messages.size + 8)
+        var lastDay: java.time.LocalDate? = null
+        messages.forEach { message ->
+            val day = java.time.Instant.ofEpochMilli(message.time).atZone(zone).toLocalDate()
+            if (day != lastDay) {
+                val label = when {
+                    day == today -> todayLabel
+                    day == today.minusDays(1) -> yesterdayLabel
+                    day.year == today.year -> day.format(formatterThisYear)
+                    else -> day.format(formatterOtherYear)
+                }
+                items.add(FeedItem.DateHeader(label, day.toString()))
+                lastDay = day
+            }
+            items.add(FeedItem.MessageItem(message))
+        }
+        items
+    }
+}
+
+/** 列表中的日期横条：居中的胶囊标签（日历图标 + 日期文字）。 */
+@Composable
+private fun DateBar(label: String, modifier: Modifier = Modifier) {
+    val palette = LocalHubPalette.current
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Surface(
+            shape = androidx.compose.foundation.shape.CircleShape,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, palette.cardBorder),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Rounded.CalendarToday,
+                    contentDescription = null,
+                    tint = palette.muted,
+                    modifier = Modifier.size(12.dp),
+                )
+                Spacer(Modifier.width(5.dp))
+                Text(
+                    text = label,
+                    fontFamily = InterFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp,
+                    color = palette.muted,
+                )
             }
         }
     }
