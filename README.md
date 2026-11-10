@@ -2,6 +2,8 @@
 
 一款基于 [ntfy](https://ntfy.sh) 协议的 Android 订阅中心客户端。实时接收自建或公共 ntfy 服务器的推送消息，支持多服务器、多主题聚合管理，所有数据仅保存在本机。
 
+> 配套的浏览器端扩展：[ntfy-extension](https://github.com/codecodegogogo/ntfy-extension)——在浏览器里接收和发送 ntfy 通知，与手机端共用同一个 ntfy 服务器。
+
 <p align="center">
   <table>
     <tr>

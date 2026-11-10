@@ -129,6 +129,16 @@ fun FeedScreen(
             }
         }
     }
+    // 服务器备注映射：首页只显示备注，没备注才回退到地址。
+    val serverAliasMap = remember(subscriptions) {
+        buildMap {
+            subscriptions.forEach { subscription ->
+                subscription.serverAlias?.takeIf { it.isNotBlank() }?.let { alias ->
+                    put(subscription.serverUrl, alias)
+                }
+            }
+        }
+    }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val openedAt = remember(target) { System.currentTimeMillis() - 2_000L }
@@ -236,6 +246,7 @@ fun FeedScreen(
                                         message = message,
                                         topicName = aliasMap["${message.serverUrl}|${message.topic}"]
                                             ?: message.topic,
+                                        serverName = serverAliasMap[message.serverUrl],
                                         showTopic = target == null || target.isAggregate,
                                         onMarkRead = { viewModel.markMessageRead(message.key) },
                                         onDelete = {
@@ -434,6 +445,7 @@ private fun FeedHeader(
 private fun MessageCard(
     message: NtfyMessage,
     topicName: String,
+    serverName: String? = null,
     showTopic: Boolean,
     onMarkRead: () -> Unit,
     onDelete: () -> Unit,
@@ -451,8 +463,9 @@ private fun MessageCard(
     val clickUrl = message.clickUrl
     val clickable = !clickUrl.isNullOrBlank()
     // 设计稿：卡片首行是「图标 + 服务器/主题」等宽字体标识。
-    val sourceLabel = remember(message.serverUrl, message.topic) {
-        "${serverDisplayName(message.serverUrl)}/${message.topic}"
+    // 首页只显示备注：有服务器/主题备注用备注，没有才回退到原始名称。
+    val sourceLabel = remember(message.serverUrl, message.topic, topicName, serverName) {
+        "${serverName ?: serverDisplayName(message.serverUrl)}/$topicName"
     }
     val sourceIcon = topicVisual(message.topic)
 

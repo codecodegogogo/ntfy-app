@@ -258,6 +258,48 @@ class NtfyRepository(context: Context) {
             .firstOrNull { it.serverUrl == serverUrl && topic in it.topics }
             ?.topicAliases?.get(topic)
 
+    /** 查询服务器备注；没有备注时返回 null。 */
+    fun serverAliasOf(serverUrl: String): String? =
+        _subscriptions.value
+            .firstOrNull { it.serverUrl == serverUrl }
+            ?.serverAlias
+            ?.takeIf { it.isNotBlank() }
+
+    /** 设置主题备注；传 null 或空串表示清除备注。 */
+    fun setTopicAlias(serverUrl: String, topic: String, alias: String?) {
+        val clean = alias?.trim()?.take(32)?.takeIf { it.isNotBlank() }
+        _subscriptions.update { list ->
+            list.map { subscription ->
+                if (subscription.serverUrl == serverUrl && topic in subscription.topics) {
+                    val aliases = if (clean == null) {
+                        subscription.topicAliases - topic
+                    } else {
+                        subscription.topicAliases + (topic to clean)
+                    }
+                    subscription.copy(topicAliases = aliases)
+                } else {
+                    subscription
+                }
+            }
+        }
+        persist()
+    }
+
+    /** 设置服务器备注（同一地址的所有订阅共享）；传 null 或空串表示清除备注。 */
+    fun setServerAlias(serverUrl: String, alias: String?) {
+        val clean = alias?.trim()?.take(32)?.takeIf { it.isNotBlank() }
+        _subscriptions.update { list ->
+            list.map { subscription ->
+                if (subscription.serverUrl == serverUrl) {
+                    subscription.copy(serverAlias = clean)
+                } else {
+                    subscription
+                }
+            }
+        }
+        persist()
+    }
+
     fun removeTopic(serverUrl: String, topic: String) {
         _subscriptions.update { list ->
             list.mapNotNull { subscription ->

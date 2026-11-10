@@ -26,7 +26,12 @@ data class HubTopic(
 
 data class HubServer(
     val serverUrl: String,
+    /** 界面显示名：有备注用备注，否则用去掉协议的地址。 */
     val displayName: String,
+    /** 原始服务器地址（管理页显示「源地址 + 备注」用）。 */
+    val sourceUrl: String,
+    /** 服务器备注；为空表示没设备注。 */
+    val alias: String? = null,
     val topics: List<HubTopic>,
     val unread: Int,
 )
@@ -58,9 +63,15 @@ fun buildHubServers(
     return refs.values
         .groupBy { it.serverUrl }
         .map { (serverUrl, topics) ->
+            val alias = subscriptions
+                .firstOrNull { it.serverUrl == serverUrl }
+                ?.serverAlias
+                ?.takeIf { it.isNotBlank() }
             HubServer(
                 serverUrl = serverUrl,
-                displayName = serverDisplayName(serverUrl),
+                displayName = alias ?: serverDisplayName(serverUrl),
+                sourceUrl = serverUrl,
+                alias = alias,
                 topics = topics.sortedWith(
                     compareByDescending<HubTopic> { it.latest?.time ?: 0L }
                         .thenBy { it.topic }

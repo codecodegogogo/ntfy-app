@@ -138,6 +138,18 @@ class HubViewModel(private val app: NtfyApp) : ViewModel() {
         _events.tryEmit("正在重新连接 ${serverDisplayName(serverUrl)}")
     }
 
+    /** 设置服务器备注（长按服务器操作）。 */
+    fun setServerAlias(serverUrl: String, alias: String?) {
+        repository.setServerAlias(serverUrl, alias)
+        _events.tryEmit(if (alias.isNullOrBlank()) "已清除服务器备注" else "已设置服务器备注")
+    }
+
+    /** 设置主题备注（长按主题操作）。 */
+    fun setTopicAlias(serverUrl: String, topic: String, alias: String?) {
+        repository.setTopicAlias(serverUrl, topic, alias)
+        _events.tryEmit(if (alias.isNullOrBlank()) "已清除 #$topic 的备注" else "已设置 #$topic 的备注")
+    }
+
     fun refresh() {
         repository.refresh()
         // 用户可能通过通知「停止」结束过监听，重试时一并恢复前台服务。

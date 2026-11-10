@@ -187,6 +187,7 @@ class HubStore(context: Context) {
                         serverUrl = serverUrl,
                         topics = topics,
                         topicAliases = topicAliases,
+                        serverAlias = obj.stringOrNull("serverAlias"),
                         username = obj.stringOrNull("username"),
                         password = obj.stringOrNull("password"),
                         token = obj.stringOrNull("token"),
@@ -243,6 +244,7 @@ class HubStore(context: Context) {
         put("topicAliases", JSONObject().apply {
             topicAliases.forEach { (topic, alias) -> put(topic, alias) }
         })
+        put("serverAlias", serverAlias ?: JSONObject.NULL)
         put("username", username ?: JSONObject.NULL)
         put("password", password ?: JSONObject.NULL)
         put("token", token ?: JSONObject.NULL)

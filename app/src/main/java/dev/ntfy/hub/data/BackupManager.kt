@@ -193,6 +193,7 @@ class BackupManager(private val context: Context) {
         put("serverUrl", s.serverUrl)
         put("topics", JSONArray(s.topics))
         put("topicAliases", JSONObject().apply { s.topicAliases.forEach { (k, v) -> put(k, v) } })
+        put("serverAlias", s.serverAlias ?: JSONObject.NULL)
         put("username", s.username ?: JSONObject.NULL)
         put("password", s.password ?: JSONObject.NULL)
         put("token", s.token ?: JSONObject.NULL)

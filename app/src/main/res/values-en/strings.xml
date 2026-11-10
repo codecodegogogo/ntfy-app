@@ -53,6 +53,11 @@
     <string name="reconnect">Reconnect</string>
     <string name="disconnect">Disconnect</string>
     <string name="delete_same_name">Delete same-name</string>
+    <string name="set_alias">Set remark</string>
+    <string name="alias_hint">Remark (empty to clear)</string>
+    <string name="save">Save</string>
+    <string name="server_alias_title">Server remark</string>
+    <string name="topic_alias_title">Remark for #%1$s</string>
     <string name="server_removed">Deleted all subscriptions of %1$s</string>
     <string name="server_disconnected">Disconnected %1$s, no longer receiving messages</string>
     <string name="server_reconnecting">Reconnecting to %1$s</string>

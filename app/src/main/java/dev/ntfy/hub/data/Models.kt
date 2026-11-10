@@ -8,6 +8,8 @@ data class Subscription(
     val topics: List<String>,
     /** 主题备注：key 是真实主题名，value 是界面显示名。 */
     val topicAliases: Map<String, String> = emptyMap(),
+    /** 服务器备注：界面显示名；为空时显示原始地址。 */
+    val serverAlias: String? = null,
     val username: String? = null,
     val password: String? = null,
     val token: String? = null,

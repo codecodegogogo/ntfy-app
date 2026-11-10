@@ -71,6 +71,7 @@ import dev.ntfy.hub.ui.buildHubServers
 import dev.ntfy.hub.ui.components.CircleIconButton
 import dev.ntfy.hub.ui.components.CountBadge
 import dev.ntfy.hub.ui.components.HubSnackbarHost
+import dev.ntfy.hub.ui.components.HubTextField
 import dev.ntfy.hub.ui.components.LatencyLabel
 import dev.ntfy.hub.ui.components.StatusDot
 import dev.ntfy.hub.ui.theme.InterFontFamily
@@ -79,6 +80,7 @@ import dev.ntfy.hub.ui.theme.LocalHubPalette
 import dev.ntfy.hub.ui.theme.MonoFontFamily
 import dev.ntfy.hub.ui.theme.ThemeMode
 import dev.ntfy.hub.util.relativeTime
+import dev.ntfy.hub.util.serverDisplayName
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -106,8 +108,10 @@ fun HubScreen(
     var removeTarget by remember { mutableStateOf<HubTopic?>(null) }
     // 长按服务器弹出的操作菜单目标。
     var serverMenuTarget by remember { mutableStateOf<HubServer?>(null) }
-    // 长按主题弹出的更多操作目标（取消订阅/删除同名主题）。
+    // 长按主题弹出的更多操作目标（设置备注/取消订阅）。
     var topicMenuTarget by remember { mutableStateOf<HubTopic?>(null) }
+    // 备注编辑弹窗目标（服务器或主题）。
+    var aliasDialogTarget by remember { mutableStateOf<AliasDialogTarget?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { snackbar.showSnackbar(it) }
@@ -230,7 +234,7 @@ fun HubScreen(
         )
     }
 
-    // 长按主题：取消订阅。
+    // 长按主题：设置备注 / 取消订阅。
     topicMenuTarget?.let { target ->
         AlertDialog(
             onDismissRequest = { topicMenuTarget = null },
@@ -256,10 +260,22 @@ fun HubScreen(
                 )
             },
             confirmButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    MenuActionButton(
+                        text = stringResource(dev.ntfy.hub.R.string.set_alias),
+                        fillWidth = true,
+                        onClick = {
+                            aliasDialogTarget = AliasDialogTarget.Topic(target)
+                            topicMenuTarget = null
+                        },
+                    )
                     MenuActionButton(
                         text = stringResource(dev.ntfy.hub.R.string.unsubscribe),
                         danger = true,
+                        fillWidth = true,
                         onClick = {
                             viewModel.removeTopic(target.serverUrl, target.topic)
                             topicMenuTarget = null
@@ -267,6 +283,7 @@ fun HubScreen(
                     )
                     MenuActionButton(
                         text = stringResource(dev.ntfy.hub.R.string.cancel),
+                        fillWidth = true,
                         onClick = { topicMenuTarget = null },
                     )
                 }
@@ -305,10 +322,22 @@ fun HubScreen(
                 )
             },
             confirmButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    MenuActionButton(
+                        text = stringResource(dev.ntfy.hub.R.string.set_alias),
+                        fillWidth = true,
+                        onClick = {
+                            aliasDialogTarget = AliasDialogTarget.Server(server)
+                            serverMenuTarget = null
+                        },
+                    )
                     MenuActionButton(
                         text = stringResource(dev.ntfy.hub.R.string.delete_all_subscriptions),
                         danger = true,
+                        fillWidth = true,
                         onClick = {
                             viewModel.removeServer(server.serverUrl)
                             serverMenuTarget = null
@@ -317,6 +346,7 @@ fun HubScreen(
                     if (disconnected) {
                         MenuActionButton(
                             text = stringResource(dev.ntfy.hub.R.string.reconnect),
+                            fillWidth = true,
                             onClick = {
                                 viewModel.reconnectServer(server.serverUrl)
                                 serverMenuTarget = null
@@ -326,6 +356,7 @@ fun HubScreen(
                         MenuActionButton(
                             text = stringResource(dev.ntfy.hub.R.string.disconnect),
                             danger = true,
+                            fillWidth = true,
                             onClick = {
                                 viewModel.disconnectServer(server.serverUrl)
                                 serverMenuTarget = null
@@ -334,12 +365,100 @@ fun HubScreen(
                     }
                     MenuActionButton(
                         text = stringResource(dev.ntfy.hub.R.string.cancel),
+                        fillWidth = true,
                         onClick = { serverMenuTarget = null },
                     )
                 }
             },
         )
     }
+
+    // 备注编辑弹窗：给服务器或主题设备注（留空清除）。
+    aliasDialogTarget?.let { target ->
+        AliasEditDialog(
+            target = target,
+            onDismiss = { aliasDialogTarget = null },
+            onSave = { alias ->
+                when (target) {
+                    is AliasDialogTarget.Server -> viewModel.setServerAlias(target.server.serverUrl, alias)
+                    is AliasDialogTarget.Topic -> viewModel.setTopicAlias(
+                        target.topic.serverUrl,
+                        target.topic.topic,
+                        alias,
+                    )
+                }
+                aliasDialogTarget = null
+            },
+        )
+    }
+}
+
+/** 备注编辑弹窗的目标：服务器或主题。 */
+private sealed interface AliasDialogTarget {
+    data class Server(val server: HubServer) : AliasDialogTarget
+    data class Topic(val topic: HubTopic) : AliasDialogTarget
+}
+
+/** 备注编辑弹窗：输入框 + 保存/清除。 */
+@Composable
+private fun AliasEditDialog(
+    target: AliasDialogTarget,
+    onDismiss: () -> Unit,
+    onSave: (String?) -> Unit,
+) {
+    val (title, subtitle, initial) = when (target) {
+        is AliasDialogTarget.Server -> Triple(
+            stringResource(dev.ntfy.hub.R.string.server_alias_title),
+            target.server.sourceUrl,
+            target.server.alias.orEmpty(),
+        )
+        is AliasDialogTarget.Topic -> Triple(
+            stringResource(dev.ntfy.hub.R.string.topic_alias_title, target.topic.topic),
+            target.topic.topic,
+            target.topic.alias.orEmpty(),
+        )
+    }
+    var value by remember(target) { mutableStateOf(initial) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        title = {
+            Text(title, fontFamily = JakartaFontFamily, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column {
+                Text(
+                    text = subtitle,
+                    fontFamily = MonoFontFamily,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(10.dp))
+                HubTextField(
+                    value = value,
+                    onValueChange = { if (it.length <= 32) value = it },
+                    placeholder = stringResource(dev.ntfy.hub.R.string.alias_hint),
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    onImeAction = { onSave(value.ifBlank { null }) },
+                )
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                MenuActionButton(
+                    text = stringResource(dev.ntfy.hub.R.string.save),
+                    onClick = { onSave(value.ifBlank { null }) },
+                )
+                MenuActionButton(
+                    text = stringResource(dev.ntfy.hub.R.string.cancel),
+                    onClick = onDismiss,
+                )
+            }
+        },
+    )
 }
 
 /**
@@ -351,6 +470,7 @@ private fun MenuActionButton(
     text: String,
     onClick: () -> Unit,
     danger: Boolean = false,
+    fillWidth: Boolean = false,
 ) {
     val palette = LocalHubPalette.current
     Surface(
@@ -359,8 +479,12 @@ private fun MenuActionButton(
         color = MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(1.dp, palette.cardBorder),
         shadowElevation = 1.dp,
+        modifier = if (fillWidth) Modifier.fillMaxWidth() else Modifier,
     ) {
-        Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Box(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
                 text = text,
                 fontFamily = InterFontFamily,
@@ -512,16 +636,40 @@ private fun ServerSection(
         ) {
             StatusDot(if (disconnected) ConnectionState.OFFLINE else status.state)
             Spacer(Modifier.width(4.dp))
-            Text(
-                text = server.displayName + if (disconnected) stringResource(dev.ntfy.hub.R.string.disconnected_suffix) else "",
-                fontFamily = MonoFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            // 管理页同时显示「备注 + 源地址」：有备注时备注在前、源地址在后（灰色小字）。
+            Row(
                 modifier = Modifier.weight(1f),
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (server.alias != null) {
+                    Text(
+                        text = server.alias,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                }
+                Text(
+                    text = serverDisplayName(server.serverUrl) +
+                        if (disconnected) stringResource(dev.ntfy.hub.R.string.disconnected_suffix) else "",
+                    fontFamily = MonoFontFamily,
+                    fontWeight = if (server.alias != null) FontWeight.Normal else FontWeight.SemiBold,
+                    fontSize = if (server.alias != null) 11.sp else 13.sp,
+                    color = if (server.alias != null) {
+                        LocalHubPalette.current.muted
+                    } else {
+                        MaterialTheme.colorScheme.onBackground
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
             if (disconnected) {
                 Text(
                     text = stringResource(dev.ntfy.hub.R.string.disconnected_label),
@@ -596,15 +744,42 @@ private fun TopicRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = topic.displayName,
-                fontFamily = MonoFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // 管理页同时显示「备注 + 源主题名」：有备注时备注在前、原主题名在后（灰色小字）。
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (topic.alias != null) {
+                    Text(
+                        text = topic.alias,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = topic.topic,
+                        fontFamily = MonoFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 11.sp,
+                        color = palette.muted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                } else {
+                    Text(
+                        text = topic.topic,
+                        fontFamily = MonoFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
             Spacer(Modifier.height(3.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
